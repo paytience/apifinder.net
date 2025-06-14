@@ -1,34 +1,46 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './App.css';
-import { ApiEntry, ApiData } from './types';
+import { ApiEntry } from './types';
+import { ApiService } from './services/apiService';
 import SearchBar from './components/SearchBar';
 import ApiList from './components/ApiList';
 import Header from './components/Header';
 
 function App() {
-  const [apiData, setApiData] = useState<ApiData | null>(null);
+  const [apis, setApis] = useState<ApiEntry[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load API data from the public-apis repository
-    fetch('/public-apis/db/resources.json')
-      .then(response => response.json())
-      .then((data: ApiData) => {
-        setApiData(data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error loading API data:', error);
-        setLoading(false);
-      });
+    loadInitialData();
   }, []);
 
+  const loadInitialData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Load APIs and categories from Supabase
+      const [apisData, categoriesData] = await Promise.all([
+        ApiService.getAllApis(),
+        ApiService.getCategories()
+      ]);
+      
+      setApis(apisData);
+      setCategories(categoriesData);
+    } catch (err) {
+      console.error('Error loading data:', err);
+      setError('Failed to load APIs. Please check your Supabase configuration.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredApis = useMemo(() => {
-    if (!apiData) return [];
-    
-    return apiData.entries.filter(api => {
+    return apis.filter(api => {
       const matchesSearch = searchTerm === '' || 
         api.API.toLowerCase().includes(searchTerm.toLowerCase()) ||
         api.Description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -38,20 +50,28 @@ function App() {
       
       return matchesSearch && matchesCategory;
     });
-  }, [apiData, searchTerm, selectedCategory]);
-
-  const categories = useMemo(() => {
-    if (!apiData) return [];
-    const uniqueCategories = Array.from(new Set(apiData.entries.map(api => api.Category)));
-    return uniqueCategories.sort();
-  }, [apiData]);
+  }, [apis, searchTerm, selectedCategory]);
 
   if (loading) {
     return (
       <div className="app">
         <div className="loading">
           <div className="spinner"></div>
-          <p>Loading APIs...</p>
+          <p>Loading APIs from Supabase...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="app">
+        <div className="error">
+          <h2>⚠️ Error</h2>
+          <p>{error}</p>
+          <button onClick={loadInitialData} className="retry-button">
+            Try Again
+          </button>
         </div>
       </div>
     );
