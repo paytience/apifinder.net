@@ -9,7 +9,16 @@ export interface SupabaseApiEntry {
   https: boolean;
   cors: string;
   link: string;
-  category: string;
+  category_id?: number;
+  category_name: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface SupabaseCategoryEntry {
+  id: number;
+  name: string;
+  slug: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -19,7 +28,14 @@ export class ApiService {
     try {
       const { data, error } = await supabase
         .from('apis')
-        .select('*')
+        .select(`
+          *,
+          categories (
+            id,
+            name,
+            slug
+          )
+        `)
         .order('api_name');
 
       if (error) {
@@ -28,14 +44,14 @@ export class ApiService {
       }
 
       // Transform Supabase data to match our ApiEntry interface
-      return data.map((item: SupabaseApiEntry) => ({
+      return data.map((item: any) => ({
         API: item.api_name,
         Description: item.description,
         Auth: item.auth,
         HTTPS: item.https,
         Cors: item.cors,
         Link: item.link,
-        Category: item.category
+        Category: item.category_name || (item.categories ? item.categories.name : 'Unknown')
       }));
     } catch (error) {
       console.error('Failed to fetch APIs:', error);
@@ -47,16 +63,23 @@ export class ApiService {
     try {
       let query = supabase
         .from('apis')
-        .select('*');
+        .select(`
+          *,
+          categories (
+            id,
+            name,
+            slug
+          )
+        `);
 
       // Add search filter
       if (searchTerm) {
-        query = query.or(`api_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%`);
+        query = query.or(`api_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,category_name.ilike.%${searchTerm}%`);
       }
 
       // Add category filter
       if (category) {
-        query = query.eq('category', category);
+        query = query.eq('category_name', category);
       }
 
       query = query.order('api_name');
@@ -69,14 +92,14 @@ export class ApiService {
       }
 
       // Transform Supabase data to match our ApiEntry interface
-      return data.map((item: SupabaseApiEntry) => ({
+      return data.map((item: any) => ({
         API: item.api_name,
         Description: item.description,
         Auth: item.auth,
         HTTPS: item.https,
         Cors: item.cors,
         Link: item.link,
-        Category: item.category
+        Category: item.category_name || (item.categories ? item.categories.name : 'Unknown')
       }));
     } catch (error) {
       console.error('Failed to search APIs:', error);
@@ -87,20 +110,37 @@ export class ApiService {
   static async getCategories(): Promise<string[]> {
     try {
       const { data, error } = await supabase
-        .from('apis')
-        .select('category')
-        .order('category');
+        .from('categories')
+        .select('name')
+        .order('name');
 
       if (error) {
         console.error('Error fetching categories:', error);
         throw error;
       }
 
-      // Get unique categories
-      const uniqueCategories = Array.from(new Set(data.map(item => item.category)));
-      return uniqueCategories.sort();
+      return data.map(category => category.name);
     } catch (error) {
       console.error('Failed to fetch categories:', error);
+      throw error;
+    }
+  }
+
+  static async getCategoriesWithDetails(): Promise<SupabaseCategoryEntry[]> {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+
+      if (error) {
+        console.error('Error fetching categories with details:', error);
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Failed to fetch categories with details:', error);
       throw error;
     }
   }
@@ -110,7 +150,14 @@ export class ApiService {
       const { data, error } = await supabase
         .from('apis')
         .insert([api])
-        .select()
+        .select(`
+          *,
+          categories (
+            id,
+            name,
+            slug
+          )
+        `)
         .single();
 
       if (error) {
@@ -125,10 +172,30 @@ export class ApiService {
         HTTPS: data.https,
         Cors: data.cors,
         Link: data.link,
-        Category: data.category
+        Category: data.category_name || (data.categories ? data.categories.name : 'Unknown')
       };
     } catch (error) {
       console.error('Failed to add API:', error);
+      throw error;
+    }
+  }
+
+  static async addCategory(category: Omit<SupabaseCategoryEntry, 'id' | 'created_at' | 'updated_at'>): Promise<SupabaseCategoryEntry> {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .insert([category])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error adding category:', error);
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Failed to add category:', error);
       throw error;
     }
   }

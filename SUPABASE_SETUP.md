@@ -1,6 +1,6 @@
 # Supabase Setup Guide for API Finder
 
-This guide will help you set up Supabase for your API Finder application.
+This guide will help you set up Supabase for your API Finder application with proper categories table structure.
 
 ## Prerequisites
 
@@ -22,11 +22,12 @@ This guide will help you set up Supabase for your API Finder application.
 
 1. Go to your Supabase project dashboard
 2. Navigate to **SQL Editor** in the left sidebar
-3. Create a new query and paste the contents of `supabase-schema.sql`
+3. Create a new query and paste the contents of `supabase-schema-with-categories.sql`
 4. Click "Run" to execute the SQL commands
 
 This will create:
-- An `apis` table with all necessary columns
+- A `categories` table with name and slug fields
+- An `apis` table with foreign key relationship to categories
 - Indexes for better performance
 - Row Level Security policies
 - Automatic timestamp updates
@@ -58,19 +59,33 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 npm install @supabase/supabase-js dotenv
 ```
 
-## Step 5: Migrate Data from JSON to Supabase
+## Step 5: Migrate Data with Categories
 
-Run the migration script to transfer all APIs from the local JSON file to Supabase:
+### Option A: Complete Migration (Recommended)
+Run the complete migration script that handles both categories and APIs with proper relationships:
 
 ```bash
-node scripts/migrate-to-supabase.js
+node scripts/complete-migration-with-categories.js
 ```
 
 This script will:
-- Read all APIs from `public-apis/db/resources.json`
-- Transform the data to match the Supabase schema
-- Insert the data in batches to avoid timeouts
-- Provide progress updates during the migration
+- Migrate all 52 categories from `categories.json` to the `categories` table
+- Migrate all 1,487 APIs from `resources.json` to the `apis` table
+- Create proper foreign key relationships between APIs and categories
+- Provide detailed progress and verification
+
+### Option B: Step-by-Step Migration
+If you prefer to run migrations separately:
+
+1. **Migrate categories first:**
+   ```bash
+   node scripts/migrate-categories-to-supabase.js
+   ```
+
+2. **Then migrate APIs with category relationships:**
+   ```bash
+   node scripts/migrate-apis-with-categories.js
+   ```
 
 ## Step 6: Start the Application
 
@@ -78,7 +93,31 @@ This script will:
 npm start
 ```
 
-The application will now load data from Supabase instead of the local JSON file.
+The application will now load data from Supabase with proper category relationships.
+
+## New Features Enabled by Categories Table
+
+- **Normalized data structure**: Categories are stored separately with proper relationships
+- **Better data integrity**: Foreign key constraints ensure data consistency
+- **Improved performance**: Dedicated category queries are faster
+- **Category management**: Easy to add/edit/delete categories independently
+- **Advanced filtering**: More efficient category-based filtering
+- **Future extensibility**: Ready for category-specific features (descriptions, icons, etc.)
+
+## Database Structure
+
+### Categories Table
+- `id` (Primary Key)
+- `name` (e.g., "Animals", "Authentication & Authorization")
+- `slug` (e.g., "animals", "authentication-and-authorization")
+- `created_at`, `updated_at`
+
+### APIs Table
+- `id` (Primary Key)
+- `api_name`, `description`, `auth`, `https`, `cors`, `link`
+- `category_id` (Foreign Key to categories.id)
+- `category_name` (Denormalized for backward compatibility)
+- `created_at`, `updated_at`
 
 ## Features Enabled by Supabase Integration
 
