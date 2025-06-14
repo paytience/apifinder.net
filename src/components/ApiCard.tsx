@@ -7,13 +7,14 @@ interface ApiCardProps {
 
 const ApiCard: React.FC<ApiCardProps> = ({ api }) => {
   const getAuthBadge = (auth: string) => {
-    if (!auth) return <span className="badge badge-green">No Auth</span>;
+    if (!auth || auth === null || auth === undefined) return <span className="badge badge-green">No Auth</span>;
     if (auth.toLowerCase().includes('key')) return <span className="badge badge-yellow">API Key</span>;
     if (auth.toLowerCase().includes('oauth')) return <span className="badge badge-blue">OAuth</span>;
     return <span className="badge badge-gray">{auth}</span>;
   };
 
   const getCorsStatus = (cors: string) => {
+    if (!cors || cors === null || cors === undefined) return <span className="badge badge-gray">CORS Unknown</span>;
     if (cors.toLowerCase() === 'yes') return <span className="badge badge-green">CORS ✓</span>;
     if (cors.toLowerCase() === 'no') return <span className="badge badge-red">No CORS</span>;
     return <span className="badge badge-gray">CORS {cors}</span>;
