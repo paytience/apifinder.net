@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import './App.css';
-import { ApiEntry } from './types';
-import { ApiService } from './services/apiService';
+import Header from './components/Header';
 import SearchDropdown from './components/SearchDropdown';
 import ApiDetailPage from './components/ApiDetailPage';
-import Header from './components/Header';
+import Pricing from './components/Pricing';
+import Footer from './components/Footer';
+import { ApiEntry } from './types';
+import { ApiService } from './services/apiService';
+import './App.css';
 
 function HomePage() {
   const [apis, setApis] = useState<ApiEntry[]>([]);
@@ -63,12 +65,21 @@ function HomePage() {
     <>
       <Header apiCount={apis.length} categoryCount={categories.length} />
       <main className="main-content">
-        <SearchDropdown apis={apis} categories={categories} />
-        <div className="search-info">
+        <div className="hero-section">
+          <h1 className="hero-title">Discover the Perfect APIs</h1>
+          <p className="hero-subtitle">Find and explore thousands of free APIs to power your next project</p>
+        </div>
+        <div className="search-section">
+          <SearchDropdown 
+            apis={apis} 
+            categories={categories}
+          />
           <p>Search through {apis.length} APIs from {categories.length} categories</p>
           <p className="search-hint">💡 Start typing to see search results, or select a category to browse</p>
         </div>
+        <Pricing />
       </main>
+      <Footer />
     </>
   );
 }

@@ -48,7 +48,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({ apis, categories }) => 
       });
       
       setTotalResultCount(filtered.length);
-      setFilteredApis(filtered.slice(0, 10));
+      setFilteredApis(filtered);
       setIsDropdownOpen(filtered.length > 0 && (searchTerm.length > 0 || filters.category !== '' || filters.auth !== '' || filters.cors !== ''));
     } else {
       setTotalResultCount(0);
@@ -204,11 +204,11 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({ apis, categories }) => 
         <div className="search-dropdown">
           <div className="dropdown-header">
             <span>{totalResultCount} API{totalResultCount !== 1 ? 's' : ''} found</span>
-            {totalResultCount > 10 && <span className="more-results">Showing first 10 results</span>}
+            {totalResultCount > 40 && <span className="more-results">Showing first 40 results</span>}
           </div>
           
           <div className="dropdown-results">
-            {filteredApis.map((api, index) => (
+            {filteredApis.slice(0, 40).map((api, index) => (
               <div
                 key={`${api.API}-${api.Category}`}
                 className={`dropdown-item ${index === highlightedIndex ? 'highlighted' : ''}`}
