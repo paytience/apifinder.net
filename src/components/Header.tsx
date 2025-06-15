@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 interface HeaderProps {
   apiCount: number;
@@ -22,8 +23,8 @@ const Header: React.FC<HeaderProps> = ({ apiCount, categoryCount }) => {
         <div className="header-right">
           <nav className="nav-links">
             <a href="#pricing" className="nav-link">Pricing</a>
-            <button className="nav-button login-btn">Login</button>
-            <button className="nav-button register-btn">Register</button>
+            <Link to="/login" className="nav-button login-btn">Login</Link>
+            <Link to="/register" className="nav-button register-btn">Register</Link>
           </nav>
           
           <div className="language-selector">

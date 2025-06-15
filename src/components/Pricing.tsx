@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 interface PricingTier {
   name: string;
@@ -29,8 +30,9 @@ const Pricing: React.FC = () => {
       features: [
         "Save favorite APIs",
         "Search history",
+        "Advanced search filter",
       ],
-      buttonText: "Sign Up with Google",
+      buttonText: "Register now",
       buttonClass: "pricing-btn-register",
     },
     {
@@ -47,6 +49,29 @@ const Pricing: React.FC = () => {
       popular: true
     }
   ];
+
+  const scrollToSearch = () => {
+    const heroSection = document.querySelector('.hero-section');
+    if (heroSection) {
+      heroSection.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Highlight the search box after scrolling
+    setTimeout(() => {
+      const searchInput = document.querySelector('.search-input') as HTMLInputElement;
+      if (searchInput) {
+        searchInput.focus();
+        searchInput.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.3), 0 0 20px rgba(102, 126, 234, 0.2)';
+        searchInput.style.borderColor = '#667eea';
+        
+        // Remove highlight after 2 seconds
+        setTimeout(() => {
+          searchInput.style.boxShadow = '';
+          searchInput.style.borderColor = '';
+        }, 2000);
+      }
+    }, 500);
+  };
 
   return (
     <section className="pricing-section">
@@ -79,9 +104,34 @@ const Pricing: React.FC = () => {
               </div>
               
               <div className="pricing-card-footer">
-                <button className={`pricing-btn ${tier.buttonClass}`}>
-                  {tier.buttonText}
-                </button>
+                {tier.buttonText === "Start Searching" ? (
+                  <button 
+                    className={`pricing-btn ${tier.buttonClass}`}
+                    onClick={scrollToSearch}
+                  >
+                    {tier.buttonText}
+                  </button>
+                ) : tier.buttonText === "Register now" ? (
+                  <Link 
+                    to="/register"
+                    className={`pricing-btn ${tier.buttonClass}`}
+                  >
+                    {tier.buttonText}
+                  </Link>
+                ) : tier.buttonText === "Subscribe Now" ? (
+                  <Link 
+                    to="/subscribe"
+                    className={`pricing-btn ${tier.buttonClass}`}
+                  >
+                    {tier.buttonText}
+                  </Link>
+                ) : (
+                  <button 
+                    className={`pricing-btn ${tier.buttonClass}`}
+                  >
+                    {tier.buttonText}
+                  </button>
+                )}
               </div>
             </div>
           ))}

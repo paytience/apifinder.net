@@ -3,6 +3,10 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import SearchDropdown from './components/SearchDropdown';
 import ApiDetailPage from './components/ApiDetailPage';
+import RegisterPage from './components/RegisterPage';
+import EmailRegisterPage from './components/EmailRegisterPage';
+import LoginPage from './components/LoginPage';
+import SubscribePage from './components/SubscribePage';
 import Pricing from './components/Pricing';
 import Footer from './components/Footer';
 import { ApiEntry } from './types';
@@ -90,6 +94,10 @@ function App() {
       <div className="app">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/register-email" element={<EmailRegisterPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/subscribe" element={<SubscribePage />} />
           <Route path="/api/:apiId" element={<ApiDetailPage />} />
         </Routes>
       </div>

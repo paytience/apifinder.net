@@ -21,27 +21,24 @@ const Footer: React.FC = () => {
             <div className="footer-column">
               <h4>Company</h4>
               <ul>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li><a href="#blog">Blog</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
               </ul>
             </div>
             
             <div className="footer-column">
               <h4>Legal</h4>
               <ul>
-                <li><a href="#terms">Terms of Service</a></li>
-                <li><a href="#privacy">Privacy Policy</a></li>
-                <li><a href="#cookies">Cookie Policy</a></li>
+                <li><a href="/terms">Terms of Service</a></li>
+                <li><a href="/privacy">Privacy Policy</a></li>
+                <li><a href="/cookies">Cookie Policy</a></li>
               </ul>
             </div>
             
             <div className="footer-column">
               <h4>Support</h4>
               <ul>
-                <li><a href="#help">Help Center</a></li>
-                <li><a href="#docs">Documentation</a></li>
-                <li><a href="#api">API Status</a></li>
+                <li><a href="/api-status">API Status</a></li>
               </ul>
             </div>
           </div>
@@ -62,12 +59,12 @@ const Footer: React.FC = () => {
       <div className="footer-bottom">
         <div className="footer-bottom-content">
           <p className="copyright">
-            © {currentYear} API Finder. All rights reserved.
+            &copy; {currentYear} API Finder. All rights reserved.
           </p>
           <div className="footer-bottom-links">
-            <a href="#terms">Terms</a>
-            <a href="#privacy">Privacy</a>
-            <a href="#about">About</a>
+            <a href="/terms">Terms</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/about">About</a>
           </div>
         </div>
       </div>

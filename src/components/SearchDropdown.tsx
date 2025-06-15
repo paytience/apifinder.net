@@ -8,17 +8,86 @@ interface SearchDropdownProps {
 }
 
 interface FilterState {
-  category: string;
-  auth: string;
-  cors: string;
+  category: string[];
+  auth: string[];
+  cors: string[];
 }
+
+interface MultiSelectProps {
+  options: string[];
+  selected: string[];
+  onChange: (selected: string[]) => void;
+  placeholder: string;
+  className?: string;
+}
+
+const MultiSelect: React.FC<MultiSelectProps> = ({ options, selected, onChange, placeholder, className }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const toggleOption = (option: string) => {
+    if (selected.includes(option)) {
+      onChange(selected.filter(item => item !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  };
+
+  const getDisplayText = () => {
+    if (selected.length === 0) return placeholder;
+    return `${selected.length} selected`;
+  };
+
+  return (
+    <div className={`multi-select ${className || ''}`} ref={dropdownRef}>
+      <div 
+        className="multi-select-trigger"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="multi-select-text">{getDisplayText()}</span>
+        <span className={`multi-select-arrow ${isOpen ? 'open' : ''}`}>▼</span>
+      </div>
+      
+      {isOpen && (
+        <div className="multi-select-dropdown">
+          {options.map(option => (
+            <div
+              key={option}
+              className={`multi-select-option ${selected.includes(option) ? 'selected' : ''}`}
+              onClick={() => toggleOption(option)}
+            >
+              <input
+                type="checkbox"
+                checked={selected.includes(option)}
+                onChange={() => {}} // Handled by onClick
+                className="multi-select-checkbox"
+              />
+              <span>{option}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const SearchDropdown: React.FC<SearchDropdownProps> = ({ apis, categories }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState<FilterState>({
-    category: '',
-    auth: '',
-    cors: ''
+    category: [],
+    auth: [],
+    cors: []
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [filteredApis, setFilteredApis] = useState<ApiEntry[]>([]);
@@ -29,27 +98,38 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({ apis, categories }) => 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Get unique auth and cors values from APIs
-  const authOptions = Array.from(new Set(apis.map(api => api.Auth).filter(auth => auth))).sort();
-  const corsOptions = Array.from(new Set(apis.map(api => api.Cors).filter(cors => cors))).sort();
+  const authOptions = ['No Auth Required', ...Array.from(new Set(apis.map(api => api.Auth).filter(auth => auth))).sort()];
+  const corsOptions = Array.from(new Set(apis.map(api => api.Cors).filter(cors => cors))).sort().map(cors => 
+    cors === 'yes' ? 'CORS Enabled' : cors === 'no' ? 'No CORS' : cors
+  );
 
   useEffect(() => {
     // Filter APIs based on search term and all filters
-    if (searchTerm.length > 0 || filters.category || filters.auth || filters.cors) {
+    const hasActiveFilters = filters.category.length > 0 || filters.auth.length > 0 || filters.cors.length > 0;
+    
+    if (searchTerm.length > 0 || hasActiveFilters) {
       const filtered = apis.filter(api => {
         const matchesSearch = searchTerm === '' || 
           api.API.toLowerCase().includes(searchTerm.toLowerCase()) ||
           api.Description.toLowerCase().includes(searchTerm.toLowerCase());
         
-        const matchesCategory = filters.category === '' || api.Category === filters.category;
-        const matchesAuth = filters.auth === '' || filters.auth === 'no-auth' || api.Auth === filters.auth;
-        const matchesCors = filters.cors === '' || api.Cors === filters.cors;
+        const matchesCategory = filters.category.length === 0 || filters.category.includes(api.Category);
+        
+        const matchesAuth = filters.auth.length === 0 || 
+          filters.auth.includes('No Auth Required') && !api.Auth ||
+          filters.auth.includes(api.Auth);
+        
+        const matchesCors = filters.cors.length === 0 || 
+          filters.cors.includes('CORS Enabled') && api.Cors === 'yes' ||
+          filters.cors.includes('No CORS') && api.Cors === 'no' ||
+          filters.cors.includes(api.Cors);
         
         return matchesSearch && matchesCategory && matchesAuth && matchesCors;
       });
       
       setTotalResultCount(filtered.length);
       setFilteredApis(filtered);
-      setIsDropdownOpen(filtered.length > 0 && (searchTerm.length > 0 || filters.category !== '' || filters.auth !== '' || filters.cors !== ''));
+      setIsDropdownOpen(filtered.length > 0 && (searchTerm.length > 0 || hasActiveFilters));
     } else {
       setTotalResultCount(0);
       setFilteredApis([]);
@@ -69,7 +149,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({ apis, categories }) => 
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleFilterChange = (filterType: keyof FilterState, value: string) => {
+  const handleFilterChange = (filterType: keyof FilterState, value: string[]) => {
     setFilters(prev => ({
       ...prev,
       [filterType]: value
@@ -78,14 +158,14 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({ apis, categories }) => 
 
   const clearAllFilters = () => {
     setFilters({
-      category: '',
-      auth: '',
-      cors: ''
+      category: [],
+      auth: [],
+      cors: []
     });
   };
 
   const getActiveFilterCount = () => {
-    return Object.values(filters).filter(value => value !== '').length;
+    return filters.category.length + filters.auth.length + filters.cors.length;
   };
 
   const createApiSlug = (apiName: string) => {
@@ -144,45 +224,36 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({ apis, categories }) => 
       <div className="search-controls">
         <div className="search-container">
           <div className="inline-filters">
-            <select
-              value={filters.category}
-              onChange={(e) => handleFilterChange('category', e.target.value)}
-              className="inline-filter-select"
-            >
-              <option value="">All Categories</option>
-              {categories.map(category => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
+            <MultiSelect
+              options={categories}
+              selected={filters.category}
+              onChange={(selected) => handleFilterChange('category', selected)}
+              placeholder="All Categories"
+            />
             
-            <select
-              value={filters.auth}
-              onChange={(e) => handleFilterChange('auth', e.target.value)}
-              className="inline-filter-select"
-            >
-              <option value="">Any Auth</option>
-              <option value="no-auth">No Auth Required</option>
-              {authOptions.map(auth => (
-                <option key={auth} value={auth}>
-                  {auth}
-                </option>
-              ))}
-            </select>
+            <MultiSelect
+              options={authOptions}
+              selected={filters.auth}
+              onChange={(selected) => handleFilterChange('auth', selected)}
+              placeholder="Any Auth"
+            />
             
-            <select
-              value={filters.cors}
-              onChange={(e) => handleFilterChange('cors', e.target.value)}
-              className="inline-filter-select"
-            >
-              <option value="">Any CORS</option>
-              {corsOptions.map(cors => (
-                <option key={cors} value={cors}>
-                  {cors === 'yes' ? 'CORS Enabled' : cors === 'no' ? 'No CORS' : cors}
-                </option>
-              ))}
-            </select>
+            <MultiSelect
+              options={corsOptions}
+              selected={filters.cors}
+              onChange={(selected) => handleFilterChange('cors', selected)}
+              placeholder="Any CORS"
+            />
+
+            {getActiveFilterCount() > 0 && (
+              <button 
+                onClick={clearAllFilters}
+                className="clear-filters-btn"
+                title="Clear all filters"
+              >
+                Clear ({getActiveFilterCount()})
+              </button>
+            )}
           </div>
           
           <div className="search-input-container">
@@ -222,7 +293,12 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({ apis, categories }) => 
                   <span className="dropdown-item-category">{api.Category}</span>
                 </div>
                 <p className="dropdown-item-description">
-                  {highlightSearchTerm(api.Description, searchTerm)}
+                  {highlightSearchTerm(
+                    api.Description.length > 100 
+                      ? api.Description.substring(0, 100) + '...' 
+                      : api.Description, 
+                    searchTerm
+                  )}
                 </p>
               </div>
             ))}
