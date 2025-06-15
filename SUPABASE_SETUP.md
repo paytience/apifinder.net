@@ -121,7 +121,7 @@ The application will now load data from Supabase with proper category relationsh
 
 ## Features Enabled by Supabase Integration
 
-- **Real-time updates**: APIs can be updated in real-time
+- **Regular updates**: APIs can be updated regularly
 - **Better performance**: Database indexes provide faster search
 - **Scalability**: Can handle much larger datasets
 - **Advanced search**: Full-text search capabilities

@@ -32,7 +32,7 @@ const AboutPage: React.FC = () => {
                 <p>Access thousands of free APIs across multiple categories and use cases.</p>
               </div>
               <div className="feature-card">
-                <h3>⚡ Real-time Updates</h3>
+                <h3>⚡ Regular Updates</h3>
                 <p>Our database is constantly updated with the latest APIs and information.</p>
               </div>
               <div className="feature-card">
@@ -40,20 +40,6 @@ const AboutPage: React.FC = () => {
                 <p>Unlock advanced search, favorites, and unlimited access with our Pro plan.</p>
               </div>
             </div>
-          </section>
-
-          <section className="about-section">
-            <h2>Our Story</h2>
-            <p>
-              Founded by developers for developers, API Finder was born out of the frustration of spending 
-              countless hours searching for the right APIs. We believe that finding the perfect API should 
-              be as simple as a Google search, and that's exactly what we've built.
-            </p>
-            <p>
-              Today, API Finder serves thousands of developers worldwide, helping them discover and integrate 
-              APIs faster than ever before. Our platform continues to evolve based on community feedback 
-              and the changing needs of the developer ecosystem.
-            </p>
           </section>
 
           <section className="about-section">

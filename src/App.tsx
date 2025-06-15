@@ -7,6 +7,11 @@ import RegisterPage from './components/RegisterPage';
 import EmailRegisterPage from './components/EmailRegisterPage';
 import LoginPage from './components/LoginPage';
 import SubscribePage from './components/SubscribePage';
+import AboutPage from './components/AboutPage';
+import ContactPage from './components/ContactPage';
+import TermsPage from './components/TermsPage';
+import PrivacyPage from './components/PrivacyPage';
+import CookiePage from './components/CookiePage';
 import Pricing from './components/Pricing';
 import Footer from './components/Footer';
 import { ApiEntry } from './types';
@@ -71,7 +76,7 @@ function HomePage() {
       <main className="main-content">
         <div className="hero-section">
           <h1 className="hero-title">Discover the Perfect APIs</h1>
-          <p className="hero-subtitle">Find and explore thousands of free APIs to power your next project</p>
+          <p className="hero-subtitle">Find and explore hundreds of free APIs to power your next project</p>
         </div>
         <div className="search-section">
           <SearchDropdown 
@@ -98,6 +103,11 @@ function App() {
           <Route path="/register-email" element={<EmailRegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/subscribe" element={<SubscribePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/cookies" element={<CookiePage />} />
           <Route path="/api/:apiId" element={<ApiDetailPage />} />
         </Routes>
       </div>

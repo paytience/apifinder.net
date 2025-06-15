@@ -34,39 +34,12 @@ const Footer: React.FC = () => {
                 <li><a href="/cookies">Cookie Policy</a></li>
               </ul>
             </div>
-            
-            <div className="footer-column">
-              <h4>Support</h4>
-              <ul>
-                <li><a href="/api-status">API Status</a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        
-        <div className="footer-right">
-          <div className="footer-social">
-            <h4>Follow Us</h4>
-            <div className="social-links">
-              <a href="#twitter" aria-label="Twitter">🐦</a>
-              <a href="#github" aria-label="GitHub">🐙</a>
-              <a href="#linkedin" aria-label="LinkedIn">💼</a>
-            </div>
           </div>
         </div>
       </div>
       
-      <div className="footer-bottom">
-        <div className="footer-bottom-content">
-          <p className="copyright">
-            &copy; {currentYear} API Finder. All rights reserved.
-          </p>
-          <div className="footer-bottom-links">
-            <a href="/terms">Terms</a>
-            <a href="/privacy">Privacy</a>
-            <a href="/about">About</a>
-          </div>
-        </div>
+      <div className="footer-copyright">
+        <p>&copy; {currentYear} API Finder. All rights reserved.</p>
       </div>
     </footer>
   );
